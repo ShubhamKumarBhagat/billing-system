@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const validator=require("validator")
-const bcryptjs=require("bcryptjs");
+const bcryptjs=require("bcryptjs")
+const jwt=require("jsonwebtoken")
 
 const userSchema=new mongoose.Schema({
     name: {
@@ -60,14 +61,52 @@ const userSchema=new mongoose.Schema({
                 ref:'Order'
             }
         }
+    ],
+    tokens:[
+        {
+            token:{
+                type:String,
+                required:true
+            }
+        }
     ]
 })
+
+
+//methods defined on individual instances
+userSchema.methods.generateAuthToken= async function(){
+    const user=this
+    const token=jwt.sign({_id:user._id.toString()},'billing-system')
+    
+    user.tokens=user.tokens.concat({token})
+    await user.save()
+
+    return token
+
+}
+
+//statics defined on model
+userSchema.statics.findByCredentials=async (email,password)=>{
+    const user=await User.findOne({email})
+    if(!user)
+    {
+        throw new Error("Invalid credentials")
+    }
+    const isMatch=await bcryptjs.compare(password,user.password)
+    if(!isMatch)
+    {
+        throw new Error("Invalid Credentials")
+    }
+    return user
+}
 
 //Hash Password before saving
 userSchema.pre('save', async function(next){ //no arrow function due to absence of this  binding
     const user=this
-    const hashedPassword=await bcryptjs.hash(user.password,10)
-    user.password=hashedPassword
+    if(user.isModified('password'))
+    {
+        user.password=await bcryptjs.hash(user.password,10)
+    }
     next()
 }) 
 
