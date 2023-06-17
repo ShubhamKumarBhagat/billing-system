@@ -3,9 +3,10 @@ const Offering=require("../models/offering")
 const router=new express.Router();
 
 router.post('/offering', async (req,res)=>{
-    console.log(req.body)
+    // console.log(req.body)
     const offering=new Offering(req.body)
-
+    offering.taxes=offering.calculateTaxes()
+    // console.log(offering)
     try{
         await offering.save()
         res.status(201).send({offering})
