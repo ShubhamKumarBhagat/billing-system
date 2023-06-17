@@ -34,7 +34,7 @@ const userSchema=new mongoose.Schema({
     },
     cart:[
         {
-            offeringid:{
+            offering:{
                 type:mongoose.Types.ObjectId,
                 required:true,
                 ref:'Offering'
@@ -42,8 +42,6 @@ const userSchema=new mongoose.Schema({
             quantity:{
                 type:Number,
                 required:true,
-                minimum:1,
-                default:1,
                 validate(value){
                     if(!Number.isInteger(value))
                     throw new Error("Quantity of an item cannot be fractional")

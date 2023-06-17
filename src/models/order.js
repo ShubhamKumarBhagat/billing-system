@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const orderSchema=new mongoose.Schema({
     items:[
         {
-            offeringid:{
+            offering:{
                 type:mongoose.Types.ObjectId,
                 required:true,
                 ref:'Offering'
@@ -11,14 +11,13 @@ const orderSchema=new mongoose.Schema({
             quantity:{
                 type:Number,
                 required:true,
-                default:1
             }
         }
 
     ],
     amount:{
         type:Number,
-        required:true
+        required:true,
     }
 })
 
