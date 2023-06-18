@@ -81,17 +81,31 @@ userSchema.methods.generateAuthToken= async function(){
 
 }
 
+userSchema.methods.calculateAmount= function(cart){
+    let bill=0
+    //for each item of cart sum prices and taxes and multiply with quantity
+    cart.forEach(item => {
+        bill+=parseFloat(item.offering.price)*parseInt(item.quantity)
+        let tax=0
+        item.offering.taxes.forEach((taxcategory)=>{
+            tax+=parseFloat(taxcategory.amount)
+        })
+        bill+=tax*parseInt(item.quantity)
+    })
+    return bill
+}
+
 //statics defined on model
 userSchema.statics.findByCredentials=async (email,password)=>{
     const user=await User.findOne({email})
     if(!user)
     {
-        throw new Error("Invalid credentials")
+        throw new Error("Login failed due to wrong credentials")
     }
     const isMatch=await bcryptjs.compare(password,user.password)
     if(!isMatch)
     {
-        throw new Error("Invalid Credentials")
+        throw new Error("Login failed due to wrong credentials")
     }
     return user
 }
@@ -99,7 +113,7 @@ userSchema.statics.findByCredentials=async (email,password)=>{
 //Hash Password before saving
 userSchema.pre('save', async function(next){ //no arrow function due to absence of this  binding
     const user=this
-    if(user.isModified('password'))
+    if(user.isModified('password'))// hashing only needed when password is set or reset i.e modified
     {
         user.password=await bcryptjs.hash(user.password,10)
     }
