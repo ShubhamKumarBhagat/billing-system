@@ -14,12 +14,24 @@ const orderSchema=new mongoose.Schema({
             }
         }
 
-    ],
-    amount:{
-        type:Number,
-        required:true,
-    }
+    ]
 })
+
+
+orderSchema.methods.calculateAmount=function(detailedOrder){
+    let amount=0
+    detailedOrder.items.forEach(item => {
+        amount+=parseFloat(item.offering.price)*item.quantity
+        let tax=0
+        item.offering.taxes.forEach((taxcategory)=>{
+            tax+=parseFloat(taxcategory.amount)
+        })
+        amount+=tax*item.quantity
+    });
+
+    return amount
+    
+}
 
 const Order=mongoose.model('Order',orderSchema)
 module.exports=Order
