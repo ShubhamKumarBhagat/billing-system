@@ -2,29 +2,17 @@ const express=require("express")
 const Offering=require("../models/offering")
 const router=new express.Router();
 
-router.post('/offering', async (req,res)=>{
-    // console.log(req.body)
-    const offering=new Offering(req.body)
-    offering.taxes=offering.calculateTaxes()
-    // console.log(offering)
-    try{
-        await offering.save()
-        res.status(201).send({offering})
-    }
-    catch(e)
-    {
-        res.status(400).send(e)
-    }
-})
 
+
+//endpoint to fetch list of all products and services
 router.get('/offering', async (req,res)=>{
     try{
         const offerings=await Offering.find({})
-        res.status(200).send(offerings)
+        res.status(200).send({count:offerings.length,offerings})
     }
     catch(e)
     {
-        res.status(500).send(e)
+        res.status(500).send({message:e.message})
     }
     
 })
