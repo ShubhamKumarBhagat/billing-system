@@ -88,7 +88,6 @@ offeringSchema.methods.calculateTaxes=function()
             })
         }
     }
-    // console.log(taxes)
     return taxes
 }
 
